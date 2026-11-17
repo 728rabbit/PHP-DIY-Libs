@@ -15,6 +15,7 @@ namespace App\Libs\security;
 class HtmlSanitizer
 {
     private bool $strictMode;
+    private bool $encodeHtml;
     private array $customTags;
     private array $customAttrs;
 
@@ -87,10 +88,12 @@ class HtmlSanitizer
      */
     public function __construct(
         bool $strictMode = true,
+        bool $encodeHtml = false,
         array $customTags = [],
-        array $customAttrs = []
+        array $customAttrs = [],
     ) {
         $this->strictMode = $strictMode;
+        $this->encodeHtml = $encodeHtml;
         $this->customTags = $customTags;
         $this->customAttrs = $customAttrs;
     }
@@ -190,8 +193,8 @@ class HtmlSanitizer
     private function walk(\DOMNode $node): void
     {
         // Encode text nodes to prevent XSS
-        if ($node->nodeType === XML_TEXT_NODE) {
-            $node->nodeValue = htmlspecialchars($node->nodeValue, ENT_QUOTES, 'UTF-8');
+        if ($this->encodeHtml && $node->nodeType === XML_TEXT_NODE) {
+            $node->nodeValue = htmlspecialchars($node->nodeValue, ENT_QUOTES, 'UTF-8', false);
             return;
         }
 
@@ -541,7 +544,7 @@ class HtmlSanitizer
                     }
                 }
                 return false;
-            });
+            }, 'strlen');
             if (empty($filtered)) {
                 $node->removeAttribute('allow');
             } else {

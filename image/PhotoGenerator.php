@@ -234,6 +234,11 @@ class PhotoGenerator
                 $ratioX = $newWidth / $this->width;
                 $ratioY = $newHeight / $this->height;
                 $finalRatio = min($ratioX, $ratioY);
+                
+                if ($finalRatio >= 1) {
+                    return $this;
+                }
+                
                 $newWidth = round($this->width * $finalRatio);
                 $newHeight = round($this->height * $finalRatio);
             }
@@ -241,6 +246,10 @@ class PhotoGenerator
             // Stretch to exact dimensions
             $newWidth = max(1, $newWidth);
             $newHeight = max(1, $newHeight);
+            
+            if ($newWidth >= $this->width && $newHeight >= $this->height) {
+                return $this;
+            }
         }
         
         // Create new canvas
